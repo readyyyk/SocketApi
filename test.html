@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script src="./SocketApi.js"></script>
+    <script>
+        const socketApi = new SocketApi("ws://localhost:3001/ws?room=123")
+
+        socketApi.on("connection", (e)=>{
+            const el = document.createElement("pre")
+            el.innerText = JSON.stringify(e, null, '\t')
+            document.body.append(el)
+        })
+        socketApi.on("default", (e)=>{console.log("event default", e)})
+
+        socketApi.addDataChecker("default", (data)=>{
+            return Object.keys(data).length===1 && data.hasOwnProperty("data")
+        })
+
+        socketApi.emit("default", {data: 'testing'})
+        socketApi.emit("connection", {data: 'connected or not?', anotherField: true, thirdField: ["yes", "i", "do"]})
+        socketApi.emit("default", {})
+        socketApi.emit("default", {data: "", data2: "asd"})
+        setTimeout(()=>socketApi.emit("default", {data: 'testing23333'}), 100)
+    </script>
+</body>
+</html>
+
