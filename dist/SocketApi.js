@@ -102,5 +102,3 @@ class SocketApi{
         })
     }
 }
-
-export default SocketApi
