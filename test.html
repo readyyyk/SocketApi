@@ -10,7 +10,10 @@
 <body>
     <script src="./dist/SocketApi.min.js"></script>
     <script>
-        const socketApi = new SocketApi("ws://localhost:3001/ws?room=123")
+        const socketApi = new SocketApi("wss://api-chatbin.fly.dev/QWERT/ws")
+        socketApi.makeRefreshable(0);
+
+        setTimeout(()=>socketApi.socket.close(), 1000)
 
         socketApi.on("connection", (e)=>{
             const el = document.createElement("pre")
@@ -28,6 +31,7 @@
         socketApi.emit("default", {})
         socketApi.emit("default", {data: "", data2: "asd"})
         setTimeout(()=>socketApi.emit("default", {data: 'testing23333'}), 100)
+
     </script>
 </body>
 </html>

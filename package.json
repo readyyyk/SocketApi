@@ -1,11 +1,14 @@
 {
   "name": "@raedyk/socketapi",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Easier way to deal with WebSockets",
   "main": "SocketApi.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "head -n -2 SocketApi.js > dist/SocketApi.js && terser dist/SocketApi.js -c -o dist/SocketApi.min.js"
+  },
+  "devDependencies": {
+    "terser": "^5.19.2"
   },
   "repository": {
     "type": "git",

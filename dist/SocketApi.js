@@ -1,11 +1,23 @@
-class SocketApi{
-    dataCheckers = new Map() // string func
-    eventListeners = new Map() // string func
+const WS_CLOSE_NORMAL = 1000;
+const WS_CLOSE_GOING_AWAY = 1001;
 
-    unemitted = []
+class SocketApi{
+    link = "";
+    dataCheckers = new Map(); // string func
+    eventListeners = new Map(); // string func
+    isRefreshable = false;
+    refreshDelay = 500;
+    idleTimeoutId;
+
+    unemitted = [];
 
     constructor(link=`ws://${location.host}`) {
-        this.socket = new WebSocket(link)
+        this.link = link;
+        this.initSocket(link);
+    }
+
+    initSocket(link){
+        this.socket = new WebSocket(link);
 
         this.socketHandler = (eventFetched) => {
             const {event, data} = JSON.parse(eventFetched.data)
@@ -14,6 +26,26 @@ class SocketApi{
                 console.error(`[WS] - No listener specified for event ('${event}')`)
         }
         this.socket.onmessage = this.socketHandler
+
+        if(this.isRefreshable)
+            this.makeRefreshable();
+    }
+
+    makeRefreshable(delay=this.refreshDelay, maxIdleTime=1000) {
+        this.isRefreshable = true;
+        this.socket.onclose = (ev) =>
+            ![WS_CLOSE_NORMAL, WS_CLOSE_GOING_AWAY].includes(ev.code) &&
+            setTimeout(()=>this.initSocket(this.link), delay);
+
+        document.onvisibilitychange = () => {
+            if (document.hidden){
+                this.idleTimeoutId = setTimeout(()=>this.socket.close(WS_CLOSE_NORMAL, "tab idle"), maxIdleTime);
+            } else {
+                clearTimeout(this.idleTimeoutId);
+            }
+        };
+
+        console.info("Reconnected");
     }
 
     addDataChecker(event, checkerFunc=function(a){return false}){
